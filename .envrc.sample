@@ -1,0 +1,4 @@
+export EXPO_ACCESS_TOKEN_PUSH=""
+export DB_NAME=""
+export DB_USER=""
+export DB_PASS=""
