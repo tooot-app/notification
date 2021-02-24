@@ -36,7 +36,7 @@ services:
       test: ['CMD', 'redis-cli', 'ping']
 
   push:
-    image: ghcr.io/tooot/push:latest
+    image: ghcr.io/tooot-app/push:latest
     networks:
       - internal_network
     depends_on:

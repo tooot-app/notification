@@ -38,5 +38,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/tooot/push:latest
-            ghcr.io/tooot/push:${{ steps.package-version.outputs.current-version}}
+            ghcr.io/tooot-app/push:latest
+            ghcr.io/tooot-app/push:${{ steps.package-version.outputs.current-version}}
