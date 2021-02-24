@@ -1,0 +1,62 @@
+version: '3'
+services:
+  caddy:
+    image: caddy:2-alpine
+    networks:
+      - external_network
+      - internal_network
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./data/caddy/config:/config
+      - ./data/caddy/data:/data
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == push1
+
+  db:
+    image: postgres:13-alpine
+    networks:
+      - internal_network
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+
+  redis:
+    image: redis:6-alpine
+    networks:
+      - internal_network
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+
+  push:
+    image: ghcr.io/tooot/push:latest
+    networks:
+      - internal_network
+    depends_on:
+      - db
+      - redis
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    env_file:
+     - ./.env
+
+  watchtower:
+    image: containrrr/watchtower
+    networks:
+      - internal_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_LABEL_ENABLE=true
+
+networks:
+  external_network:
+  internal_network:
+    internal: true

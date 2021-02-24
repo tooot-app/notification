@@ -1,115 +1,71 @@
-import Router from '@koa/router'
 import Koa from 'koa'
-import accesslog from 'koa-accesslog'
 import bodyParser from 'koa-bodyparser'
+import logger from 'koa-logger'
 import npmlog from 'npmlog'
-import { DataTypes, Model, Sequelize } from 'sequelize'
-import generateKeys from './generateKeys'
-import routeClientUpdate from './routeClientUpdate'
-import routeServerPush from './routeServerPush'
+import 'reflect-metadata'
+import { createConnection } from 'typeorm'
+import appRoutes from './routes'
+import enableSentry from './util/sentry'
 
-const URL = 'https://testpush.home.xmflsct.com'
+const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
+export const VERSION = 'v1'
+const DOMAIN =
+  process.env.NODE_ENV === 'development'
+    ? 'test.push.tooot.app'
+    : 'push.tooot.app'
+export const URL = `https://${DOMAIN}/${VERSION}`
+export const PUSH_PATH = 'push3'
 
 if (!process.env.EXPO_ACCESS_TOKEN_PUSH) {
   throw new Error('Missing Expo access token')
 }
-if (!process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASS) {
-  throw new Error('Missing database details.')
+if (!process.env.SENTRY_DSN) {
+  throw new Error('Missing Sentry DSN')
 }
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS,
-  {
-    dialect: 'postgres',
-    host: '127.0.0.1',
-    port: 5432,
-    logging: false
-  }
-)
-
-interface ExpoTokenAttribute {
-  expoToken: string
-  serverKey: string
-}
-
-interface ExpoTokensInstance
-  extends Model<ExpoTokenAttribute>,
-    ExpoTokenAttribute {}
-
-export const ExpoTokens = sequelize.define<ExpoTokensInstance>(
-  'ExpoTokens',
-  {
-    expoToken: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false
-    },
-    serverKey: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  },
-  {
-    indexes: [
-      {
-        unique: true,
-        fields: ['expoToken']
-      }
-    ]
-  }
-)
 
 const main = async () => {
-  npmlog.info('DB', 'syncing')
-  await ExpoTokens.sync()
+  await createConnection({
+    type: 'postgres',
+    host: process.env.NODE_ENV === 'development' ? 'localhost' : 'db',
+    database: process.env.TYPEORM_DATABASE,
+    username: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD,
+    entities:
+      process.env.NODE_ENV === 'development'
+        ? [__dirname + '/entity/*.ts']
+        : [__dirname + '/entity/*.js'],
+    logging: false,
+    synchronize: true,
+    cache: {
+      type: 'redis',
+      options: {
+        host: process.env.NODE_ENV === 'development' ? 'localhost' : 'redis',
+        port: 6379
+      }
+    }
+  })
+  npmlog.info('DB', 'synced')
 
   const app = new Koa()
-  app.use(accesslog())
+
+  enableSentry(app)
+
+  app.use(logger())
   app.use(
     bodyParser({
       enableTypes: ['json'],
       onerror: (_, ctx) => {
-        ctx.throw('Body parse error', 422)
+        ctx.throw(422, 'Body parse error')
       }
     })
   )
 
-  const routerClient = new Router()
-  const routerServer = new Router()
+  const routes = appRoutes()
+  app.use(routes)
 
-  routerClient.post('/register', async ctx => {
-    const keys = generateKeys()
-    const expoToken = ctx.request.body.expoToken.match(
-      /ExponentPushToken\[(.*)\]/
-    )[1]
-
-    ctx.response.status = 200
-    ctx.response.body = { endpoint: `${URL}/push/${expoToken}`, ...keys }
-  })
-  routerClient.post('/update', async ctx => {
-    await routeClientUpdate(ctx)
-
-    ctx.response.status = 200
-  })
-  routerClient.post('/unregister', async ctx => {
-    ctx.response.status = 200
-  })
-
-  routerServer.all('/push/:expoToken', async ctx => {
-    await routeServerPush(ctx)
-
-    ctx.response.status = 200
-  })
-
-  app.use(routerClient.routes())
-  app.use(routerServer.routes())
-
-  // app.use(handleRequest)
-
-  app.listen(5454, () => {
-    npmlog.info('Koa', `listening on port ${5454}`)
+  app.listen(PORT, () => {
+    npmlog.info('Koa', `listening at ${URL}`)
+    npmlog.info('Koa', `listening on port ${PORT}`)
   })
 }
 

@@ -1,0 +1,7 @@
+{
+  experimental_http3
+}
+
+push.tooot.app {
+  reverse_proxy push
+}

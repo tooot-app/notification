@@ -1,16 +1,12 @@
-FROM node:10.1-alpine
+FROM node:14-alpine
 
-ENV NODE_ENV=production
+WORKDIR /usr/src/app
 
-RUN addgroup -g 1001 app1
-RUN adduser -u 1001 -G app1 -g 'App1' -D -H app1
+COPY ["package.json", "yarn.lock", "./"]
 
-RUN mkdir /app1
-WORKDIR /app1
-ADD . /app1
-RUN yarn
+RUN yarn install --production
 
-USER app1
+COPY ./build .
 
-EXPOSE 4005
-CMD ["npm", "start"]
+EXPOSE 80
+CMD [ "node", "index.js" ]
