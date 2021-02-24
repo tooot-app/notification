@@ -29,7 +29,6 @@ const main = async () => {
     host: process.env.NODE_ENV === 'development' ? 'localhost' : 'db',
     database: process.env.TYPEORM_DATABASE,
     username: process.env.TYPEORM_USERNAME,
-    password: process.env.TYPEORM_PASSWORD,
     entities:
       process.env.NODE_ENV === 'development'
         ? [__dirname + '/entity/*.ts']
