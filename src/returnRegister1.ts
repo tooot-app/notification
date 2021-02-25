@@ -1,14 +1,8 @@
 import Koa from 'koa'
-import npmlog from 'npmlog'
 import { PUSH_PATH, URL } from '.'
 
 const returnRegister1 = async (ctx: Koa.Context, next: Koa.Next) => {
-  try {
-    await next()
-  } catch (error) {
-    npmlog.error('returnRegister1', error)
-    ctx.throw(500, 'returnRegister1: some process went wrong')
-  }
+  await next()
 
   const expoToken = ctx.state.expoToken
   const instanceUrl = ctx.state.instanceUrl

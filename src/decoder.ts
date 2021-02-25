@@ -106,8 +106,6 @@ const decode = async (ctx: Koa.Context, next: Koa.Next) => {
 
   ctx.state.bodyJson = JSON.parse(result.toString('utf-8').substring(2))
 
-  console.log(ctx.state.bodyJson)
-
   await next()
 }
 

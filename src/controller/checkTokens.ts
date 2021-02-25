@@ -10,15 +10,15 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
 
   if (!expoToken) {
     npmlog.warn('checkTokens', 'missing expoToken')
-    ctx.throw(500, 'checkTokens: missing expoToken')
+    ctx.throw(400, 'checkTokens: missing expoToken')
   }
   if (!instanceUrl) {
     npmlog.warn('checkTokens', 'missing instanceUrl')
-    ctx.throw(500, 'checkTokens: missing instanceUrl')
+    ctx.throw(400, 'checkTokens: missing instanceUrl')
   }
   if (!accountId) {
     npmlog.warn('checkTokens', 'missing accountId')
-    ctx.throw(500, 'checkTokens: missing accountId')
+    ctx.throw(400, 'checkTokens: missing accountId')
   }
 
   const repoSA = getRepository(ServerAndAccount)

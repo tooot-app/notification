@@ -1,6 +1,6 @@
 {
    "name": "tooot-push",
-   "version": "0.1.1",
+   "version": "0.1.2",
    "description": "Push relay service for tooot",
    "author": "xmflsct <me@xmflsct.com>",
    "license": "GPL-3.0-or-later",

@@ -4,6 +4,11 @@ import npmlog from 'npmlog'
 const regexCryptoKey = new RegExp(/dh=.*;p256ecdsa=(.*)/)
 
 const verifyServer = async (ctx: Koa.Context, next: Koa.Next) => {
+  if (!ctx.req.headers['crypto-key']) {
+    npmlog.warn('verifyServer', 'are you a legit server?')
+    ctx.throw(400, 'verifyServer: are you a legit server?')
+  }
+
   const getCryptoKey = (ctx.req.headers['crypto-key'] as string).match(
     regexCryptoKey
   )

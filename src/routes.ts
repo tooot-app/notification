@@ -13,6 +13,7 @@ import returnDefault from './returnDefault'
 import returnRegister1 from './returnRegister1'
 import serverPush from './serverPush'
 import streamContent from './streamContent'
+import verifyServer from './verifyServer'
 
 const appRoutes = () => {
   const router = new Router({
@@ -57,6 +58,7 @@ const appRoutes = () => {
     `/${PUSH_PATH}/:expoToken/:instanceUrl/:accountId`,
     returnDefault,
     checkTokens,
+    verifyServer,
     streamContent,
     decoder,
     serverPush

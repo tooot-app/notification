@@ -11,7 +11,7 @@ const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
 export const VERSION = 'v1'
 const DOMAIN =
   process.env.NODE_ENV === 'development'
-    ? 'test.push.tooot.app'
+    ? 'testpush.tooot.app'
     : 'push.tooot.app'
 export const URL = `https://${DOMAIN}/${VERSION}`
 export const PUSH_PATH = 'push3'
