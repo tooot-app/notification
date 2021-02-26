@@ -3,6 +3,10 @@ import Koa from 'koa'
 import npmlog from 'npmlog'
 
 const serverPush = async (ctx: Koa.Context) => {
+  if (!process.env.EXPO_ACCESS_TOKEN_PUSH) {
+    npmlog.warn('serverPush', 'missing Expo access token')
+    ctx.throw(500, 'serverPush: missing Expo access token')
+  }
   const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN_PUSH })
 
   if (ctx.state.keys) {
@@ -25,8 +29,8 @@ const serverPush = async (ctx: Koa.Context) => {
           ctx.throw(500, 'serverPush: push to Expo failed')
         }
       })
-      .catch(() => {
-        npmlog.warn('serverPush', 'delivery to Expo server faild')
+      .catch(err => {
+        npmlog.warn('serverPush', err)
         ctx.throw(500, 'serverPush: delivery to Expo server failed')
       })
   } else {
@@ -45,8 +49,8 @@ const serverPush = async (ctx: Koa.Context) => {
           ctx.throw(500, 'serverPush: push to Expo failed')
         }
       })
-      .catch(() => {
-        npmlog.warn('serverPush', 'delivery to Expo server faild')
+      .catch(err => {
+        npmlog.warn('serverPush', err)
         ctx.throw(500, 'serverPush: delivery to Expo server failed')
       })
   }
