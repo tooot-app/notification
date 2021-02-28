@@ -6,9 +6,11 @@ import removeUnregister from './controller/removeUnregister'
 import saveRegister1 from './controller/saveRegister1'
 import saveRegister2 from './controller/saveRegister2'
 import updateDecode from './controller/updateDecode'
+import updateExpoToken from './controller/updateExpoToken'
 import decoder from './decoder'
 import generateKeys from './generateKeys'
 import prepareBaseData from './prepareBaseData'
+import prepareConnect from './prepareConnect'
 import returnDefault from './returnDefault'
 import returnRegister1 from './returnRegister1'
 import serverPush from './serverPush'
@@ -19,6 +21,14 @@ const appRoutes = () => {
   const router = new Router({
     prefix: `/${VERSION}`
   })
+
+  router.post(
+    '/connect',
+    // { expoToken }
+    returnDefault,
+    prepareConnect,
+    updateExpoToken
+  )
 
   router.post(
     '/register1',

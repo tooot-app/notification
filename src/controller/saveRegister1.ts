@@ -9,7 +9,10 @@ const saveRegister1 = async (ctx: Koa.Context, next: Koa.Next) => {
   const accountId: string = ctx.state.accountId
   const accountFull: string = ctx.request.body.accountFull
 
-  const savedExpoToken = await getRepository(ExpoToken).save({ expoToken })
+  const savedExpoToken = await getRepository(ExpoToken).save({
+    expoToken,
+    connectedTimestamp: new Date(Date.now()).toISOString()
+  })
 
   const repoSA = getRepository(ServerAndAccount)
 

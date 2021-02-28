@@ -48,6 +48,7 @@ services:
   push:
     image: ghcr.io/tooot-app/push:latest
     networks:
+      - external_network
       - internal_network
     depends_on:
       - db

@@ -9,18 +9,20 @@ const getExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
     ctx.throw(500, 'getExpoToken: Expo Token not in context state')
   }
 
+  const expoToken = ctx.state.expoToken
+
   const repoET = getRepository(ExpoToken)
   const foundET = await repoET.findOne({
-    where: { expoToken: ctx.state.expoToken },
+    where: { expoToken },
     cache: {
-      id: ctx.state.expoToken,
+      id: expoToken,
       milliseconds: 86400000
     }
   })
 
   if (!foundET) {
     const connection = getConnection()
-    await connection.queryResultCache?.remove([ctx.state.expoToken])
+    await connection.queryResultCache?.remove([expoToken])
     npmlog.warn('getExpoToken', 'cannot found corresponding Expo Token')
     ctx.throw(500, 'getExpoToken: cannot found corresponding Expo Token')
   }

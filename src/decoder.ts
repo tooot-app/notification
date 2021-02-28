@@ -105,6 +105,9 @@ const decode = async (ctx: Koa.Context, next: Koa.Next) => {
   result = result.slice(pad_length, result.length - 16)
 
   ctx.state.bodyJson = JSON.parse(result.toString('utf-8').substring(2))
+  if (process.env.NODE_ENV === 'development') {
+    console.log(ctx.state.bodyJson)
+  }
 
   await next()
 }

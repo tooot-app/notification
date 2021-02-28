@@ -5,6 +5,7 @@ import npmlog from 'npmlog'
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
 import appRoutes from './routes'
+import cleanup from './util/cleanup'
 import enableSentry from './util/sentry'
 
 const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
@@ -27,8 +28,9 @@ const main = async () => {
   await createConnection({
     type: 'postgres',
     host: process.env.NODE_ENV === 'development' ? 'localhost' : 'db',
-    database: process.env.TYPEORM_DATABASE,
-    username: process.env.TYPEORM_USERNAME,
+    database: process.env.POSTGRES_DATABASE,
+    username: process.env.POSTGRES_USERNAME,
+    password: process.env.POSTGRES_PASSWORD,
     entities:
       process.env.NODE_ENV === 'development'
         ? [__dirname + '/entity/*.ts']
@@ -45,11 +47,11 @@ const main = async () => {
   })
   npmlog.info('DB', 'synced')
 
+  cleanup()
+
   const app = new Koa()
-
   enableSentry(app)
-
-  app.use(logger())
+  process.env.NODE_ENV === 'development' && app.use(logger())
   app.use(
     bodyParser({
       enableTypes: ['json'],
