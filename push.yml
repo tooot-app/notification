@@ -23,8 +23,7 @@ services:
       - internal_network
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+    env_file: .env
     healthcheck:
       test: ['CMD', 'pg_isready', '-U', 'postgres']
     deploy:
@@ -54,7 +53,7 @@ services:
       - db
       - redis
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - 'com.centurylinklabs.watchtower.enable=true'
     env_file: .env
     deploy:
       placement:
