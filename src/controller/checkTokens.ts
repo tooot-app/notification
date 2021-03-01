@@ -37,6 +37,8 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
   // https://github.com/typeorm/typeorm/issues/4277
   if (foundSAs[0].instanceUrl === instanceUrl) {
     ctx.state.expoToken = expoToken
+    ctx.state.instanceUrl = instanceUrl
+    ctx.state.accountId = accountId
     ctx.state.serverKey = foundSAs[0].serverKey
     ctx.state.keys = foundSAs[0].keys
     ctx.state.accountFull = foundSAs[0].accountFull

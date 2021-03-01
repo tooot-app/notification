@@ -11,12 +11,21 @@ const updateExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
 
   const expoToken = ctx.state.expoToken
 
-  const savedExpoToken = await getRepository(ExpoToken).save({
-    expoToken,
-    connectedTimestamp: new Date(Date.now()).toISOString()
+  const repoET = getRepository(ExpoToken)
+  const foundET = await repoET.findOne({
+    where: { expoToken },
+    cache: {
+      id: expoToken,
+      milliseconds: 86400000
+    }
   })
 
-  if (!savedExpoToken) {
+  if (foundET) {
+    repoET.save({
+      expoToken: foundET.expoToken,
+      connectedTimestamp: new Date(Date.now()).toISOString()
+    })
+  } else {
     const connection = getConnection()
     await connection.queryResultCache?.remove([expoToken])
     npmlog.warn('updateExpoToken', 'cannot found corresponding Expo Token')

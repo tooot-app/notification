@@ -1,6 +1,5 @@
 import Koa from 'koa'
 import npmlog from 'npmlog'
-import slugify from 'slugify'
 
 const prepareBaseData = async (ctx: Koa.Context, next: Koa.Next) => {
   if (
@@ -21,7 +20,7 @@ const prepareBaseData = async (ctx: Koa.Context, next: Koa.Next) => {
   }
 
   ctx.state.expoToken = expoTokenMatch[1]
-  ctx.state.instanceUrl = slugify(ctx.request.body.instanceUrl)
+  ctx.state.instanceUrl = ctx.request.body.instanceUrl
   ctx.state.accountId = ctx.request.body.accountId
 
   await next()
