@@ -8,4 +8,7 @@ export class ExpoToken {
 
   @Column({ type: 'timestamp' })
   connectedTimestamp!: Date
+
+  @Column()
+  errorCounts!: number
 }

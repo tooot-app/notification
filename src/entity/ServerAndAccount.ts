@@ -16,7 +16,7 @@ export class ServerAndAccount {
   @ManyToOne(
     () => ExpoToken,
     expoToken => expoToken.expoToken,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE', eager: true }
   )
   expoToken!: ExpoToken
 

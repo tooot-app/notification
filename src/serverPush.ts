@@ -1,12 +1,43 @@
-import { Expo } from 'expo-server-sdk'
+import { Expo, ExpoPushTicket } from 'expo-server-sdk'
 import Koa from 'koa'
 import npmlog from 'npmlog'
+import { getConnection } from 'typeorm'
+import updateErrorCount from './controller/updateErrorCount'
 
 const serverPush = async (ctx: Koa.Context) => {
   if (!process.env.EXPO_ACCESS_TOKEN_PUSH) {
     npmlog.warn('serverPush', 'missing Expo access token')
     ctx.throw(500, 'serverPush: missing Expo access token')
   }
+
+  const cacheClear = async () => {
+    const connection = getConnection()
+    await connection.queryResultCache?.remove([
+      `${ctx.state.expoToken}/${ctx.state.instanceUrl}/${ctx.state.accountId}`
+    ])
+  }
+
+  const checkRes = async (res: ExpoPushTicket[]) => {
+    if (res[0].status === 'error') {
+      await cacheClear()
+      await updateErrorCount(ctx, 'add')
+      npmlog.warn('serverPush', res[0].message)
+      ctx.throw(500, 'serverPush: push to Expo failed')
+    } else {
+      if (ctx.state.errorCounts !== 0) {
+        await cacheClear()
+        await updateErrorCount(ctx, 'reset')
+      }
+    }
+  }
+
+  const catchError = async (err: any) => {
+    await cacheClear()
+    await updateErrorCount(ctx, 'add')
+    npmlog.warn('serverPush', err)
+    ctx.throw(500, 'serverPush: delivery to Expo server failed')
+  }
+
   const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN_PUSH })
 
   const commonData = {
@@ -29,18 +60,15 @@ const serverPush = async (ctx: Koa.Context) => {
             notification_id: ctx.state.bodyJson.notification_id
           },
           // @ts-ignore
-          categoryId: ctx.state.bodyJson.notification_type
+          categoryId: ctx.state.bodyJson.notification_type,
+          channelId: `${ctx.state.accountFull}_${ctx.state.bodyJson.notification_type}`
         }
       ])
-      .then(res => {
-        if (res[0].status === 'error') {
-          npmlog.warn('serverPush', res[0].message)
-          ctx.throw(500, 'serverPush: push to Expo failed')
-        }
+      .then(async res => {
+        await checkRes(res)
       })
-      .catch(err => {
-        npmlog.warn('serverPush', err)
-        ctx.throw(500, 'serverPush: delivery to Expo server failed')
+      .catch(async err => {
+        await catchError(err)
       })
   } else {
     await expo
@@ -53,18 +81,15 @@ const serverPush = async (ctx: Koa.Context) => {
           body: '🔔',
           data: {
             ...commonData
-          }
+          },
+          channelId: `${ctx.state.accountFull}_default`
         }
       ])
-      .then(res => {
-        if (res[0].status === 'error') {
-          npmlog.warn('serverPush', res[0].message)
-          ctx.throw(500, 'serverPush: push to Expo failed')
-        }
+      .then(async res => {
+        await checkRes(res)
       })
-      .catch(err => {
-        npmlog.warn('serverPush', err)
-        ctx.throw(500, 'serverPush: delivery to Expo server failed')
+      .catch(async err => {
+        await catchError(err)
       })
   }
 }

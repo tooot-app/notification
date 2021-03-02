@@ -2,6 +2,7 @@ import Koa from 'koa'
 import npmlog from 'npmlog'
 import { getConnection, getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
+import { cacheIdExpoToken } from '../util/cacheIdPush'
 
 const getExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
   if (!ctx.state.expoToken) {
@@ -9,7 +10,7 @@ const getExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
     ctx.throw(500, 'getExpoToken: Expo Token not in context state')
   }
 
-  const expoToken = ctx.state.expoToken
+  const expoToken: ExpoToken['expoToken'] = ctx.state.expoToken
 
   const repoET = getRepository(ExpoToken)
   const foundET = await repoET.findOne({
@@ -22,7 +23,7 @@ const getExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
 
   if (!foundET) {
     const connection = getConnection()
-    await connection.queryResultCache?.remove([expoToken])
+    await connection.queryResultCache?.remove([cacheIdExpoToken({ expoToken })])
     npmlog.warn('getExpoToken', 'cannot found corresponding Expo Token')
     ctx.throw(500, 'getExpoToken: cannot found corresponding Expo Token')
   }

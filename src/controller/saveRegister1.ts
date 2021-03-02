@@ -4,14 +4,16 @@ import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
 
 const saveRegister1 = async (ctx: Koa.Context, next: Koa.Next) => {
-  const expoToken: string = ctx.state.expoToken
-  const instanceUrl: string = ctx.state.instanceUrl
-  const accountId: string = ctx.state.accountId
-  const accountFull: string = ctx.request.body.accountFull
+  const expoToken: ExpoToken['expoToken'] = ctx.state.expoToken
+  const instanceUrl: ServerAndAccount['instanceUrl'] = ctx.state.instanceUrl
+  const accountId: ServerAndAccount['accountId'] = ctx.state.accountId
+  const accountFull: ServerAndAccount['accountFull'] =
+    ctx.request.body.accountFull
 
   const savedExpoToken = await getRepository(ExpoToken).save({
     expoToken,
-    connectedTimestamp: new Date(Date.now()).toISOString()
+    connectedTimestamp: new Date(Date.now()).toISOString(),
+    errorCounts: 0
   })
 
   const repoSA = getRepository(ServerAndAccount)

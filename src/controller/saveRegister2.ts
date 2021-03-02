@@ -4,9 +4,10 @@ import { getRepository } from 'typeorm'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
 
 const saveRegister2 = async (ctx: Koa.Context, next: Koa.Next) => {
-  const instanceUrl: string = ctx.state.instanceUrl
-  const accountId: string = ctx.state.accountId
-  const serverKey: string = ctx.request.body.serverKey
+  const instanceUrl: ServerAndAccount['instanceUrl'] = ctx.state.instanceUrl
+  const accountId: ServerAndAccount['accountId'] = ctx.state.accountId
+  const serverKey: NonNullable<ServerAndAccount['serverKey']> =
+    ctx.request.body.serverKey
   const removeKeys: boolean = ctx.request.body.removeKeys
 
   const repoSA = getRepository(ServerAndAccount)

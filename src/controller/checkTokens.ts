@@ -1,12 +1,14 @@
 import Koa from 'koa'
 import npmlog from 'npmlog'
 import { getRepository } from 'typeorm'
+import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
+import { cacheIdPush } from '../util/cacheIdPush'
 
 const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
-  const expoToken: string = ctx.params.expoToken
-  const instanceUrl: string = ctx.params.instanceUrl
-  const accountId: string = ctx.params.accountId
+  const expoToken: ExpoToken['expoToken'] = ctx.params.expoToken
+  const instanceUrl: ServerAndAccount['instanceUrl'] = ctx.params.instanceUrl
+  const accountId: ServerAndAccount['accountId'] = ctx.params.accountId
 
   if (!expoToken) {
     npmlog.warn('checkTokens', 'missing expoToken')
@@ -29,7 +31,7 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
       accountId
     },
     cache: {
-      id: `${expoToken}/${instanceUrl}/${accountId}`,
+      id: cacheIdPush({ expoToken, instanceUrl, accountId }),
       milliseconds: 86400000
     }
   })
@@ -37,6 +39,7 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
   // https://github.com/typeorm/typeorm/issues/4277
   if (foundSAs[0].instanceUrl === instanceUrl) {
     ctx.state.expoToken = expoToken
+    ctx.state.errorCounts = foundSAs[0].expoToken.errorCounts
     ctx.state.instanceUrl = instanceUrl
     ctx.state.accountId = accountId
     ctx.state.serverKey = foundSAs[0].serverKey

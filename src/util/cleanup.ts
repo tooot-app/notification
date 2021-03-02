@@ -1,7 +1,10 @@
 import schedule from 'node-schedule'
 import npmlog from 'npmlog'
-import { getRepository, LessThan } from 'typeorm'
+import { getRepository, LessThan, MoreThan } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
+
+const OUTDATED_DAYS = 30
+const OUTDATED_ERRORS = 50
 
 const job = async (fireDate: Date) => {
   npmlog.info(
@@ -16,11 +19,16 @@ const job = async (fireDate: Date) => {
   )
 
   const today = new Date()
-  const cleanDate = new Date(today.setDate(today.getDate() - 30)).toISOString()
+  const cleanDate = new Date(
+    today.setDate(today.getDate() - OUTDATED_DAYS)
+  ).toISOString()
 
   const repoET = getRepository(ExpoToken)
   const [foundETs, foundETsCount] = await repoET.findAndCount({
-    where: { connectedTimestamp: LessThan(cleanDate) }
+    where: [
+      { connectedTimestamp: LessThan(cleanDate) },
+      { errorCounts: MoreThan(OUTDATED_ERRORS) }
+    ]
   })
 
   if (foundETsCount) {
