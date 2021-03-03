@@ -60,7 +60,7 @@ const processJobs = async (jobsData: PushJob[]) => {
   for (let job of jobsData) {
     if (job.message) {
       messages.push({
-        to: `1ExponentPushToken[${job.context.expoToken}]`,
+        to: `ExponentPushToken[${job.context.expoToken}]`,
         sound: 'default' as 'default',
         badge: 1,
         title: job.message.title,
@@ -162,15 +162,18 @@ const triggerJobsBatch = async (forceProcess = false) => {
   processorLocked = false
 }
 
-export const pushQueue = new Queue<PushJob>('Decode queue', {
+const pushQueue = new Queue<PushJob>('Decode queue', {
   redis: redisConfig
 })
 
-pushQueue.process((job, done) => {
-  npmlog.info('pushQueue', 'put 1 message to awaiting jobs')
-  awaitingJobs.push({ job, done })
-  triggerJobsBatch()
-})
+const push = () => {
+  npmlog.info('Bull', 'setup push queue')
+  pushQueue.process((job, done) => {
+    npmlog.info('pushQueue', 'put 1 message to awaiting jobs')
+    awaitingJobs.push({ job, done })
+    triggerJobsBatch()
+  })
+}
 
 setInterval(() => {
   let forceProcess = false
@@ -180,3 +183,5 @@ setInterval(() => {
   // npmlog.info('push interval', 'force running push')
   triggerJobsBatch(forceProcess)
 }, FORCE_BATCH_MILLIS)
+
+export { push, pushQueue }

@@ -4,6 +4,9 @@ import logger from 'koa-logger'
 import npmlog from 'npmlog'
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
+import { cleanup } from './queues/cleanup'
+import { decode } from './queues/decode'
+import { push } from './queues/push'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 
@@ -44,13 +47,16 @@ const main = async () => {
         port: 6379
       }
     }
+  }).catch(err => {
+    npmlog.error('DB', err)
+    throw new Error()
   })
   npmlog.info('DB', 'synced')
 
-  require('./queues/cleanup')
-  require('./queues/decode')
-  require('./queues/push')
-  npmlog.info('Bull', 'queues set up')
+  // Setup queues
+  cleanup()
+  decode()
+  push()
 
   // Koa connections
   const app = new Koa()
