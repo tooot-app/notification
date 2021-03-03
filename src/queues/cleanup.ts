@@ -1,15 +1,22 @@
-import schedule from 'node-schedule'
+import Queue from 'bull'
 import npmlog from 'npmlog'
 import { getRepository, LessThan, MoreThan } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
+import redisConfig from './redisConfig'
 
 const OUTDATED_DAYS = 30
 const OUTDATED_ERRORS = 50
 
-const job = async (fireDate: Date) => {
+export const cleanupQueue = new Queue<undefined>('Cleanup queue', {
+  redis: redisConfig
+})
+
+cleanupQueue.add(undefined, { repeat: { cron: '0 3 * * *' } })
+
+cleanupQueue.process(async (_, done) => {
   npmlog.info(
     'schedule',
-    `cleaning on ${fireDate.toLocaleString(undefined, {
+    `cleaning on ${new Date().toLocaleString(undefined, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -41,11 +48,6 @@ const job = async (fireDate: Date) => {
   } else {
     npmlog.info('schedule', 'none outdated connections')
   }
-}
 
-const cleanup = () => {
-  schedule.scheduleJob('0 3 * * *', job)
-  npmlog.info('schedule', 'daily cleanup scheduled')
-}
-
-export default cleanup
+  done()
+})

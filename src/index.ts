@@ -5,7 +5,6 @@ import npmlog from 'npmlog'
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
 import appRoutes from './routes'
-import cleanup from './util/cleanup'
 import enableSentry from './util/sentry'
 
 const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
@@ -25,6 +24,7 @@ if (!process.env.SENTRY_DSN) {
 }
 
 const main = async () => {
+  // Setup Postgres
   await createConnection({
     type: 'postgres',
     host: process.env.NODE_ENV === 'development' ? 'localhost' : 'db',
@@ -47,8 +47,12 @@ const main = async () => {
   })
   npmlog.info('DB', 'synced')
 
-  cleanup()
+  require('./queues/cleanup')
+  require('./queues/decode')
+  require('./queues/push')
+  npmlog.info('Bull', 'queues set up')
 
+  // Koa connections
   const app = new Koa()
   enableSentry(app)
   process.env.NODE_ENV === 'development' && app.use(logger())
@@ -60,10 +64,7 @@ const main = async () => {
       }
     })
   )
-
-  const routes = appRoutes()
-  app.use(routes)
-
+  app.use(appRoutes())
   app.listen(PORT, () => {
     npmlog.info('Koa', `listening at ${URL}`)
     npmlog.info('Koa', `listening on port ${PORT}`)

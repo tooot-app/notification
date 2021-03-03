@@ -1,20 +1,16 @@
-import Koa from 'koa'
 import npmlog from 'npmlog'
 import { getConnection, getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
 import { cacheIdExpoToken } from '../util/cacheIdPush'
 
-const updateErrorCount = async (ctx: Koa.Context, type: 'add' | 'reset') => {
-  if (!ctx.state.expoToken) {
-    npmlog.warn('updateErrorCount', 'Expo Token not in context state')
-    ctx.throw(500, 'updateErrorCount: Expo Token not in context state')
+const updateErrorCount = async (
+  type: 'add' | 'reset',
+  context: {
+    expoToken: ExpoToken['expoToken']
+    errorCounts: ExpoToken['errorCounts']
   }
-  if (!ctx.state.errorCounts) {
-    npmlog.warn('updateErrorCount', 'errorCounts not in context state')
-    ctx.throw(500, 'updateErrorCount: errorCounts not in context state')
-  }
-
-  const expoToken: ExpoToken['expoToken'] = ctx.state.expoToken
+) => {
+  const expoToken: ExpoToken['expoToken'] = context.expoToken
 
   const repoET = getRepository(ExpoToken)
   const foundET = await repoET.findOne({
@@ -30,7 +26,7 @@ const updateErrorCount = async (ctx: Koa.Context, type: 'add' | 'reset') => {
       case 'add':
         await repoET.save({
           expoToken: foundET.expoToken,
-          errorCounts: ctx.state.errorCounts + 1
+          errorCounts: context.errorCounts + 1
         })
         break
       case 'reset':
@@ -44,7 +40,6 @@ const updateErrorCount = async (ctx: Koa.Context, type: 'add' | 'reset') => {
     const connection = getConnection()
     await connection.queryResultCache?.remove([cacheIdExpoToken({ expoToken })])
     npmlog.warn('updateErrorCount', 'cannot found corresponding Expo Token')
-    ctx.throw(500, 'updateErrorCount: cannot found corresponding Expo Token')
   }
 }
 

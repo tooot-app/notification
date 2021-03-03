@@ -1,6 +1,27 @@
+import Queue from 'bull'
 import crypto from 'crypto'
-import Koa from 'koa'
 import npmlog from 'npmlog'
+import { ExpoToken } from '../entity/ExpoToken'
+import { ServerAndAccount } from '../entity/ServerAndAccount'
+import { pushQueue } from './push'
+import redisConfig from './redisConfig'
+
+export type DecodeJob = {
+  context: {
+    expoToken: ExpoToken['expoToken']
+    errorCounts: ExpoToken['errorCounts']
+    instanceUrl: ServerAndAccount['instanceUrl']
+    accountId: ServerAndAccount['accountId']
+    accountFull: ServerAndAccount['accountFull']
+  }
+  body: Buffer
+  keys: { auth: string; public: string; private: string }
+  headers: { encryption: string; crypto_key: string }
+}
+
+export const decodeQueue = new Queue<DecodeJob>('Decode queue', {
+  redis: redisConfig
+})
 
 function decodeBase64 (src: string) {
   return Buffer.from(src, 'base64')
@@ -51,19 +72,16 @@ function createInfo (
 const regexSalt = new RegExp(/salt=(.*)/)
 const regexCryptoKey = new RegExp(/dh=(.*);p256ecdsa=/)
 
-const decode = async (ctx: Koa.Context, next: Koa.Next) => {
-  if (!ctx.state.keys) {
-    return next()
-  }
+decodeQueue.process((job, done) => {
+  const jobData = job.data
 
-  const decodeAuth = decodeBase64(ctx.state.keys.auth)
-  const decodePublic = decodeBase64(ctx.state.keys.public)
-  const decodePrivate = decodeBase64(ctx.state.keys.private)
+  const decodeAuth = decodeBase64(jobData.keys.auth)
+  const decodePublic = decodeBase64(jobData.keys.public)
+  const decodePrivate = decodeBase64(jobData.keys.private)
 
-  const getEncryption = ctx.get('encryption').match(regexSalt)
-  const getCryptoKey = (ctx.req.headers['crypto-key'] as string).match(
-    regexCryptoKey
-  )
+  const getEncryption = jobData.headers.encryption.match(regexSalt)
+  const getCryptoKey = jobData.headers.crypto_key.match(regexCryptoKey)
+
   if (
     !getEncryption ||
     !getEncryption[1] ||
@@ -71,7 +89,7 @@ const decode = async (ctx: Koa.Context, next: Koa.Next) => {
     !getCryptoKey[1]
   ) {
     npmlog.warn('decode', 'cannot find keys in header')
-    ctx.throw(500, 'decode: cannot find keys in header')
+    throw new Error('decode: cannot find keys in header')
   }
   const salt = decodeBase64(getEncryption[1])
   const cryptoKey = decodeBase64(getCryptoKey[1])
@@ -89,7 +107,9 @@ const decode = async (ctx: Koa.Context, next: Koa.Next) => {
   const nonceInfo = createInfo('nonce', decodePublic, cryptoKey)
   const nonce = hkdf(salt, prk, nonceInfo, 12)
 
-  const body = decodeBase64(ctx.state.bodyBase64)
+  typeof jobData.body
+  // @ts-ignore
+  const body = decodeBase64(jobData.body)
 
   const decipher = crypto.createCipheriv(
     'id-aes128-GCM',
@@ -104,12 +124,13 @@ const decode = async (ctx: Koa.Context, next: Koa.Next) => {
   }
   result = result.slice(pad_length, result.length - 16)
 
-  ctx.state.bodyJson = JSON.parse(result.toString('utf-8').substring(2))
+  const message = JSON.parse(result.toString('utf-8').substring(2))
   if (process.env.NODE_ENV === 'development') {
-    console.log(ctx.state.bodyJson)
+    console.log(message)
   }
 
-  await next()
-}
+  npmlog.info('decodeQueue', 'queued decoded push')
+  pushQueue.add({ context: job.data.context, message })
 
-export default decode
+  done()
+})

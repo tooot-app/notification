@@ -1,3 +1,4 @@
+import Expo from 'expo-server-sdk'
 import Koa from 'koa'
 import npmlog from 'npmlog'
 
@@ -11,7 +12,16 @@ const prepareBaseData = async (ctx: Koa.Context, next: Koa.Next) => {
     ctx.throw(400, 'prepareBaseData: missing correct register content')
   }
 
-  ctx.state.expoToken = ctx.request.body.expoToken
+  Expo.isExpoPushToken
+  const expoTokenMatch = ctx.request.body.expoToken.match(
+    /ExponentPushToken\[(.*)\]/
+  )
+  if (expoTokenMatch === null) {
+    npmlog.error('prepareBaseData', 'expoToken format error')
+    ctx.throw(400, 'prepareBaseData: expoToken format error')
+  }
+
+  ctx.state.expoToken = expoTokenMatch[1]
   ctx.state.instanceUrl = ctx.request.body.instanceUrl
   ctx.state.accountId = ctx.request.body.accountId
 

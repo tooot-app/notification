@@ -15,7 +15,7 @@ const verifyServer = async (ctx: Koa.Context, next: Koa.Next) => {
 
   if (!getCryptoKey || !getCryptoKey[1]) {
     npmlog.warn('verifyServer', 'cannot find serverKey in crypto-key header')
-    ctx.throw(500, 'verifyServer: cannot find serverKey in crypto-key header')
+    ctx.throw(400, 'verifyServer: cannot find serverKey in crypto-key header')
   }
 
   if (`${getCryptoKey[1]}=` !== ctx.state.serverKey) {
@@ -24,7 +24,7 @@ const verifyServer = async (ctx: Koa.Context, next: Koa.Next) => {
       'serverKey in crypto-key header does not match record'
     )
     ctx.throw(
-      500,
+      400,
       'verifyServer: serverKey in crypto-key header does not match record'
     )
   }
