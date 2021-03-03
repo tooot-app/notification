@@ -49,7 +49,7 @@ const serverPush = async (ctx: Koa.Context) => {
     await expo
       .sendPushNotificationsAsync([
         {
-          to: `ExponentPushToken[${ctx.state.expoToken}]`,
+          to: ctx.state.expoToken,
           sound: 'default',
           badge: 1,
           title: ctx.state.bodyJson.title,

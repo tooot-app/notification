@@ -22,7 +22,7 @@ const updateExpoToken = async (ctx: Koa.Context, next: Koa.Next) => {
   })
 
   if (foundET) {
-    repoET.save({
+    await repoET.save({
       expoToken: foundET.expoToken,
       connectedTimestamp: new Date(Date.now()).toISOString()
     })

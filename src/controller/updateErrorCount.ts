@@ -28,13 +28,13 @@ const updateErrorCount = async (ctx: Koa.Context, type: 'add' | 'reset') => {
   if (foundET) {
     switch (type) {
       case 'add':
-        repoET.save({
+        await repoET.save({
           expoToken: foundET.expoToken,
           errorCounts: ctx.state.errorCounts + 1
         })
         break
       case 'reset':
-        repoET.save({
+        await repoET.save({
           expoToken: foundET.expoToken,
           errorCounts: 0
         })
