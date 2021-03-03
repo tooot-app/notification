@@ -163,7 +163,12 @@ const triggerJobsBatch = async (forceProcess = false) => {
 }
 
 const pushQueue = new Queue<PushJob>('Decode queue', {
-  redis: redisConfig
+  redis: redisConfig,
+  defaultJobOptions: {
+    attempts: 3,
+    removeOnComplete: true,
+    removeOnFail: true
+  }
 })
 
 const push = () => {

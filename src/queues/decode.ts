@@ -20,7 +20,12 @@ export type DecodeJob = {
 }
 
 const decodeQueue = new Queue<DecodeJob>('Decode queue', {
-  redis: redisConfig
+  redis: redisConfig,
+  defaultJobOptions: {
+    attempts: 3,
+    removeOnComplete: true,
+    removeOnFail: true
+  }
 })
 
 function decodeBase64 (src: string) {
