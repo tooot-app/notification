@@ -79,7 +79,7 @@ const regexCryptoKey = new RegExp(/dh=(.*);p256ecdsa=/)
 
 const decode = () => {
   npmlog.info('Bull', 'setup decode queue')
-  decodeQueue.process((job, done) => {
+  decodeQueue.process(job => {
     const jobData = job.data
 
     const decodeAuth = decodeBase64(jobData.keys.auth)
@@ -96,7 +96,7 @@ const decode = () => {
       !getCryptoKey[1]
     ) {
       npmlog.warn('decode', 'cannot find keys in header')
-      throw new Error('decode: cannot find keys in header')
+      return Promise.reject('decode: cannot find keys in header')
     }
     const salt = decodeBase64(getEncryption[1])
     const cryptoKey = decodeBase64(getCryptoKey[1])
@@ -141,9 +141,7 @@ const decode = () => {
     }
 
     npmlog.info('decodeQueue', 'queued decoded push')
-    pushQueue.add({ context: job.data.context, message })
-
-    done()
+    return pushQueue.add({ context: job.data.context, message })
   })
 }
 

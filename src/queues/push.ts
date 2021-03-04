@@ -162,7 +162,7 @@ const triggerJobsBatch = async (forceProcess = false) => {
   processorLocked = false
 }
 
-const pushQueue = new Queue<PushJob>('Decode queue', {
+const pushQueue = new Queue<PushJob>('Push queue', {
   redis: redisConfig,
   defaultJobOptions: {
     attempts: 3,
@@ -185,7 +185,6 @@ setInterval(() => {
   if (new Date().getTime() - lastProcessedBatch > FORCE_BATCH_MILLIS) {
     forceProcess = true
   }
-  // npmlog.info('push interval', 'force running push')
   triggerJobsBatch(forceProcess)
 }, FORCE_BATCH_MILLIS)
 
