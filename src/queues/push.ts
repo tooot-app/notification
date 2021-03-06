@@ -174,7 +174,6 @@ const pushQueue = new Queue<PushJob>('Push queue', {
 const push = () => {
   npmlog.info('Bull', 'setup push queue')
   pushQueue.process((job, done) => {
-    npmlog.info('pushQueue', 'put 1 message to awaiting jobs')
     awaitingJobs.push({ job, done })
     triggerJobsBatch()
   })

@@ -140,7 +140,6 @@ const decode = () => {
       console.log(message)
     }
 
-    npmlog.info('decodeQueue', 'queued decoded push')
     return pushQueue.add({ context: job.data.context, message })
   })
 }
