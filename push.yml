@@ -52,24 +52,9 @@ services:
     depends_on:
       - db
       - redis
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
     env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/v1/health || exit 1"]
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == tooot-push-1
-
-  watchtower:
-    image: containrrr/watchtower
-    networks:
-      - internal_network
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WATCHTOWER_LABEL_ENABLE=true
     deploy:
       placement:
         constraints:

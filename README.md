@@ -1,16 +1,13 @@
+# [tooot](https://github.com/tooot-app/app) push relay service
 
-This app receives event sent from Mastodon's WebPush REST API, then this app send it to my mobile app (Subway Tooter) via Firebase Cloud Messaging.
+[![GPL-3.0](https://img.shields.io/github/license/tooot-app/push?style=flat-square)](LICENSE) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/tooot-app/push/Publish%20production?style=flat-square) ![GitHub issues](https://img.shields.io/github/issues/tooot-app/push?style=flat-square) ![GitHub package.json version](https://img.shields.io/github/package-json/v/tooot-app/push?style=flat-square) ![Chromium HSTS preload](https://img.shields.io/hsts/preload/push.tooot.app?style=flat-square) ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m787472698-a3f9a96cc5b20cd8a16de9e7?style=flat-square)
 
-- Mastodon's WebPush REST API https://github.com/tootsuite/mastodon/pull/7445
-- Subway Tooter https://github.com/tateisu/SubwayTooter
+<a href="https://www.buymeacoffee.com/xmflsct" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="50" width="217"></a>
 
-Currently payload decryption is not implemented because Subway Tooter does not requires it's content, just use event as notification check trigger. 
+This repo contains the push relay service for [tooot app](https://github.com/tooot-app/app).
 
-But if you want sample of payload decryption. see also
-- https://gist.github.com/tateisu/685eab242549d9c9ffc85020f09a4b71
+To understand how push relay works, [read here](https://tooot.app/how-push-works).
 
-JWT verify sample
-- https://gist.github.com/tateisu/18e9807dfb8779c247d6297bcf445686
+## Special thanks to
 
-VAPID for Web Push
-- https://tools.ietf.org/html/draft-ietf-webpush-vapid-01#section-4
+[tateisu/PushToFCM](https://github.com/tateisu/PushToFCM)

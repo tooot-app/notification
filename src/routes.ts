@@ -1,6 +1,5 @@
 import Router from '@koa/router'
 import { PUSH_PATH, VERSION } from '.'
-import checkHealth from './checkHealth'
 import checkTokens from './controller/checkTokens'
 import getExpoToken from './controller/getExpoToken'
 import removeUnregister from './controller/removeUnregister'
@@ -21,7 +20,7 @@ const appRoutes = () => {
     prefix: `/${VERSION}`
   })
 
-  router.get('/health', returnDefault, checkHealth)
+  router.get('/health', returnDefault)
 
   router.post(
     '/connect',
