@@ -32,7 +32,10 @@ export type PushJob = {
 
 const MAX_BATCH_SIZE = 100
 const FORCE_BATCH_MILLIS = 1000 * 5
-let awaitingJobs: { job: Queue.Job<PushJob>; done: Queue.DoneCallback }[] = []
+export let awaitingJobs: {
+  job: Queue.Job<PushJob>
+  done: Queue.DoneCallback
+}[] = []
 let processorLocked = false
 let lastProcessedBatch = new Date().getTime()
 
