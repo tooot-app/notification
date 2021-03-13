@@ -2,11 +2,7 @@ import Koa from 'koa'
 import { PUSH_PATH, URL } from '.'
 
 const returnRegister1 = async (ctx: Koa.Context, next: Koa.Next) => {
-  try {
-    await next()
-  } catch {
-    ctx.throw(500)
-  }
+  await next()
 
   const expoToken = ctx.state.expoToken
   const instanceUrl = ctx.state.instanceUrl
