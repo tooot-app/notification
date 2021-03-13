@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import npmlog from 'npmlog'
-import { getRepository } from 'typeorm'
+import { getConnection, getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
 import { cacheIdPush } from '../util/cacheIdPush'
@@ -46,6 +46,10 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
     ctx.state.keys = foundSAs[0].keys
     ctx.state.accountFull = foundSAs[0].accountFull
   } else {
+    const connection = getConnection()
+    await connection.queryResultCache?.remove([
+      cacheIdPush({ expoToken, instanceUrl, accountId })
+    ])
     npmlog.error('checkTokens', 'expoToken does not match or not found')
     ctx.throw(400, 'checkTokens: expoToken does not match or not found')
   }

@@ -43,8 +43,7 @@ const main = async () => {
     cache: {
       type: 'redis',
       options: {
-        host: process.env.NODE_ENV === 'development' ? 'localhost' : 'redis',
-        port: 6379
+        host: process.env.NODE_ENV === 'development' ? 'localhost' : 'redis'
       }
     }
   }).catch(err => {
