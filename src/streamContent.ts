@@ -31,7 +31,8 @@ const streamContent = async (ctx: Koa.Context, next: Koa.Next) => {
     accountFull: ctx.state.accountFull
   }
   if (!ctx.state.keys) {
-    npmlog.info('streamContent', 'queued undecoded push')
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('streamContent', 'queued undecoded push')
     pushQueue.add({ context })
   } else {
     const body = await streamToBuffer(ctx.req)
@@ -44,7 +45,8 @@ const streamContent = async (ctx: Koa.Context, next: Koa.Next) => {
       encryption: ctx.get('encryption'),
       crypto_key: ctx.get('crypto-key')
     }
-    npmlog.info('streamContent', 'queued message that needs to be decoded')
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('streamContent', 'queued message that needs to be decoded')
     decodeQueue.add({ context, body, keys, headers })
   }
 

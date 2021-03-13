@@ -23,7 +23,6 @@ const updateDecode = async (ctx: Koa.Context, next: Koa.Next) => {
     npmlog.warn('updateDecode', `not found matching existing item`)
     ctx.throw(500, 'updateDecode: not found matching existing item')
   } else if (foundSAsCount === 1) {
-    npmlog.info('updateDecode', `found exactly one`)
     if (!keys) {
       const connection = getConnection()
       await connection.queryResultCache?.remove([

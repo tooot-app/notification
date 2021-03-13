@@ -137,9 +137,11 @@ const decode = () => {
 
     const message = JSON.parse(result.toString('utf-8').substring(2))
     if (process.env.NODE_ENV === 'development') {
-      console.log(message)
+      npmlog.info('decode', message)
     }
 
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('decode', 'queued message to push')
     return pushQueue.add({ context: job.data.context, message })
   })
 }

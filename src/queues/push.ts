@@ -31,7 +31,7 @@ export type PushJob = {
 }
 
 const MAX_BATCH_SIZE = 100
-const FORCE_BATCH_MILLIS = 5000
+const FORCE_BATCH_MILLIS = 1000 * 60
 let awaitingJobs: { job: Queue.Job<PushJob>; done: Queue.DoneCallback }[] = []
 let processorLocked = false
 let lastProcessedBatch = new Date().getTime()
@@ -118,15 +118,18 @@ const processJobs = async (jobsData: PushJob[]) => {
 
 const triggerJobsBatch = async (forceProcess = false) => {
   if (processorLocked) {
-    npmlog.info('triggerJobsBatch', 'already running')
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('triggerJobsBatch', 'already running')
     return
   }
   if (awaitingJobs.length === 0) {
-    // npmlog.info('triggerJobsBatch', 'no job to process')
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('triggerJobsBatch', 'no job to process')
     return
   }
   if (awaitingJobs.length < MAX_BATCH_SIZE && !forceProcess) {
-    // npmlog.info('triggerJobsBatch', 'triggering conditions are not met')
+    process.env.NODE_ENV === 'development' &&
+      npmlog.info('triggerJobsBatch', 'triggering conditions are not met')
     return
   }
 
@@ -173,7 +176,7 @@ const pushQueue = new Queue<PushJob>('Push queue', {
 
 const push = () => {
   npmlog.info('Bull', 'setup push queue')
-  pushQueue.process((job, done) => {
+  pushQueue.process(MAX_BATCH_SIZE, (job, done) => {
     awaitingJobs.push({ job, done })
     triggerJobsBatch()
   })

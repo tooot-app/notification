@@ -20,7 +20,6 @@ const removeUnregister = async (ctx: Koa.Context, next: Koa.Next) => {
   if (foundSAsCount === 0) {
     npmlog.warn('removeUnregister', `not found matching existing item`)
   } else if (foundSAsCount === 1) {
-    npmlog.info('removeUnregister', `found exactly one`)
     const connection = getConnection()
     await connection.queryResultCache?.remove([
       cacheIdPush({ expoToken, instanceUrl, accountId })
