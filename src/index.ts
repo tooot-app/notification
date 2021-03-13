@@ -61,7 +61,7 @@ const main = async () => {
   // Koa connections
   const app = new Koa()
   enableSentry(app)
-  process.env.NODE_ENV === 'development' && app.use(logger())
+  process.env.DEBUG === 'true' && app.use(logger())
   app.use(
     bodyParser({
       enableTypes: ['json'],
