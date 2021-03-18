@@ -138,12 +138,14 @@ const triggerJobsBatch = async (forceProcess = false) => {
 
   processorLocked = true
 
-  npmlog.info(
-    'triggerJobsBatch',
-    `Processing ${awaitingJobs.length} jobs${
-      forceProcess ? ', forced' : undefined
-    }`
-  )
+  if (awaitingJobs.length > 1) {
+    npmlog.info(
+      'triggerJobsBatch',
+      `Processing ${awaitingJobs.length} jobs${
+        forceProcess ? ', forced' : undefined
+      }`
+    )
+  }
 
   let activeJobsData = awaitingJobs.map(job => job.job.data)
   await processJobs(activeJobsData)
