@@ -7,7 +7,7 @@ import { createConnection } from 'typeorm'
 import { cleanup } from './queues/cleanup'
 import { decode } from './queues/decode'
 import { push } from './queues/push'
-import redisConfig from './queues/redisConfig'
+import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 

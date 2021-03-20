@@ -15,7 +15,7 @@
    "scripts": {
       "dev": "nodemon",
       "build": "tsc",
-      "start": "node --trace-warnings build/index.js"
+      "start": "node build/index.js"
    },
    "dependencies": {
       "@koa/router": "^10.0.0",

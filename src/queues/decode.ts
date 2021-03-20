@@ -4,7 +4,7 @@ import npmlog from 'npmlog'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
 import { pushQueue } from './push'
-import redisConfig from './redisConfig'
+import redisConfig from '../util/redisConfig'
 
 export type DecodeJob = {
   context: {
