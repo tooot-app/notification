@@ -1,3 +1,5 @@
+require('newrelic')
+
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
@@ -11,15 +13,13 @@ import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 
-require('newrelic')
-
 export const VERSION = 'v1'
 const DOMAIN =
   process.env.NODE_ENV === 'development'
     ? 'testpush.tooot.app'
-    : 'testheroku.tooot.app'
+    : 'push.tooot.app'
 export const URL = `https://${DOMAIN}/${VERSION}`
-export const PUSH_PATH = 'push'
+export const PUSH_PATH = 'push3'
 
 if (!process.env.EXPO_ACCESS_TOKEN_PUSH) {
   throw new Error('Missing Expo access token')
