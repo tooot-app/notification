@@ -5,7 +5,7 @@ import { getConnection } from 'typeorm'
 import updateErrorCount from '../controller/updateErrorCount'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
-import redisConfig from './redisConfig'
+import redisConfig from '../util/redisConfig'
 
 export type PushJob = {
   context: {

@@ -1,3 +1,5 @@
+require('newrelic')
+
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import logger from 'koa-logger'
@@ -7,10 +9,10 @@ import { createConnection } from 'typeorm'
 import { cleanup } from './queues/cleanup'
 import { decode } from './queues/decode'
 import { push } from './queues/push'
+import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 
-const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
 export const VERSION = 'v1'
 const DOMAIN =
   process.env.NODE_ENV === 'development'
@@ -30,10 +32,10 @@ const main = async () => {
   // Setup Postgres
   await createConnection({
     type: 'postgres',
-    host: process.env.NODE_ENV === 'development' ? 'localhost' : 'db',
-    database: process.env.POSTGRES_DATABASE,
-    username: process.env.POSTGRES_USERNAME,
-    password: process.env.POSTGRES_PASSWORD,
+    url: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    },
     entities:
       process.env.NODE_ENV === 'development'
         ? [__dirname + '/entity/*.ts']
@@ -42,9 +44,7 @@ const main = async () => {
     synchronize: true,
     cache: {
       type: 'redis',
-      options: {
-        host: process.env.NODE_ENV === 'development' ? 'localhost' : 'redis'
-      }
+      options: redisConfig
     }
   }).catch(err => {
     npmlog.error('DB', err)
@@ -70,9 +70,9 @@ const main = async () => {
     })
   )
   app.use(appRoutes())
-  app.listen(PORT, () => {
+  app.listen(process.env.PORT, () => {
     npmlog.info('Koa', `listening at ${URL}`)
-    npmlog.info('Koa', `listening on port ${PORT}`)
+    npmlog.info('Koa', `listening on port ${process.env.PORT}`)
   })
 }
 

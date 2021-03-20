@@ -2,7 +2,7 @@ import Queue from 'bull'
 import npmlog from 'npmlog'
 import { getRepository, LessThan, MoreThan } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
-import redisConfig from './redisConfig'
+import redisConfig from '../util/redisConfig'
 
 const OUTDATED_DAYS = 30
 const OUTDATED_ERRORS = 50
