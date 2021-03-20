@@ -11,6 +11,8 @@ import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 
+require('newrelic')
+
 export const VERSION = 'v1'
 const DOMAIN =
   process.env.NODE_ENV === 'development'
