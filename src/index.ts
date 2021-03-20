@@ -31,6 +31,9 @@ const main = async () => {
   await createConnection({
     type: 'postgres',
     url: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    },
     entities:
       process.env.NODE_ENV === 'development'
         ? [__dirname + '/entity/*.ts']
