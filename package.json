@@ -1,6 +1,10 @@
 {
    "name": "tooot-push",
    "version": "0.3.11",
+   "engines": {
+      "node": "14.x",
+      "yarn": "1.x"
+   },
    "description": "Push relay service for tooot",
    "author": "xmflsct <me@xmflsct.com>",
    "license": "GPL-3.0-or-later",
@@ -9,8 +13,9 @@
       "url": "https://github.com/tooot-app/push.git"
    },
    "scripts": {
-      "start": "nodemon",
-      "build": "tsc"
+      "dev": "nodemon",
+      "build": "tsc",
+      "start": "node --trace-warnings build/index.js"
    },
    "dependencies": {
       "@koa/router": "^10.0.0",
