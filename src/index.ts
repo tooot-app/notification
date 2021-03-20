@@ -11,7 +11,6 @@ import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
 import enableSentry from './util/sentry'
 
-const PORT = process.env.NODE_ENV === 'development' ? 5454 : 80
 export const VERSION = 'v1'
 const DOMAIN =
   process.env.NODE_ENV === 'development'
@@ -66,9 +65,9 @@ const main = async () => {
     })
   )
   app.use(appRoutes())
-  app.listen(PORT, () => {
+  app.listen(process.env.PORT, () => {
     npmlog.info('Koa', `listening at ${URL}`)
-    npmlog.info('Koa', `listening on port ${PORT}`)
+    npmlog.info('Koa', `listening on port ${process.env.PORT}`)
   })
 }
 
