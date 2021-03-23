@@ -11,7 +11,7 @@ const prepareConnect = async (ctx: Koa.Context, next: Koa.Next) => {
     /ExponentPushToken\[(.*)\]/
   )
   if (expoTokenMatch === null) {
-    npmlog.error('prepareConnect', 'expoToken format error')
+    npmlog.warn('prepareConnect', 'expoToken format error')
     ctx.throw(400, 'prepareConnect: expoToken format error')
   }
 

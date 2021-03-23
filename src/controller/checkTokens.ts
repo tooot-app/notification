@@ -50,7 +50,7 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
     await connection.queryResultCache?.remove([
       cacheIdPush({ expoToken, instanceUrl, accountId })
     ])
-    npmlog.error('checkTokens', 'expoToken does not match or not found')
+    npmlog.warn('checkTokens', 'expoToken does not match or not found')
     ctx.throw(400, 'checkTokens: expoToken does not match or not found')
   }
 

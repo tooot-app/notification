@@ -17,7 +17,7 @@ const prepareBaseData = async (ctx: Koa.Context, next: Koa.Next) => {
     /ExponentPushToken\[(.*)\]/
   )
   if (expoTokenMatch === null) {
-    npmlog.error('prepareBaseData', 'expoToken format error')
+    npmlog.warn('prepareBaseData', 'expoToken format error')
     ctx.throw(400, 'prepareBaseData: expoToken format error')
   }
 

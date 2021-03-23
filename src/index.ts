@@ -1,4 +1,4 @@
-require('newrelic')
+process.env.NODE_ENV === 'production' && require('newrelic')
 
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
@@ -9,8 +9,8 @@ import { createConnection } from 'typeorm'
 import { cleanup } from './queues/cleanup'
 import { decode } from './queues/decode'
 import { push } from './queues/push'
-import redisConfig from './util/redisConfig'
 import appRoutes from './routes'
+import redisConfig from './util/redisConfig'
 import enableSentry from './util/sentry'
 
 export const VERSION = 'v1'
@@ -33,9 +33,11 @@ const main = async () => {
   await createConnection({
     type: 'postgres',
     url: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    },
+    ...(process.env.NODE_ENV === 'production' && {
+      ssl: {
+        rejectUnauthorized: false
+      }
+    }),
     entities:
       process.env.NODE_ENV === 'development'
         ? [__dirname + '/entity/*.ts']
