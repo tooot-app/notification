@@ -1,9 +1,9 @@
 import Koa from 'koa'
 import npmlog from 'npmlog'
-import { getConnection, getRepository } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
-import { cacheIdPush } from '../util/cacheIdPush'
+import { removeCachePush } from '../util/cacheIdPush'
 
 const updateDecode = async (ctx: Koa.Context, next: Koa.Next) => {
   const keys: ServerAndAccount['keys'] = ctx.request.body.keys
@@ -24,10 +24,7 @@ const updateDecode = async (ctx: Koa.Context, next: Koa.Next) => {
     ctx.throw(500, 'updateDecode: not found matching existing item')
   } else if (foundSAsCount === 1) {
     if (!keys) {
-      const connection = getConnection()
-      await connection.queryResultCache?.remove([
-        cacheIdPush({ expoToken, instanceUrl, accountId })
-      ])
+      await removeCachePush({ expoToken, instanceUrl, accountId })
     }
     repoSA.update(foundSAs[0], { ...foundSAs[0], keys })
   } else {

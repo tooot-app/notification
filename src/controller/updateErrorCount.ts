@@ -1,7 +1,7 @@
 import npmlog from 'npmlog'
-import { getConnection, getRepository } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
-import { cacheIdExpoToken } from '../util/cacheIdPush'
+import { removeCacheExpoToken } from '../util/cacheIdPush'
 
 const updateErrorCount = async (
   type: 'add' | 'reset',
@@ -37,8 +37,7 @@ const updateErrorCount = async (
         break
     }
   } else {
-    const connection = getConnection()
-    await connection.queryResultCache?.remove([cacheIdExpoToken({ expoToken })])
+    await removeCacheExpoToken(expoToken)
     npmlog.warn('updateErrorCount', 'cannot found corresponding Expo Token')
   }
 }

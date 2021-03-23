@@ -2,10 +2,11 @@ import Queue from 'bull'
 import npmlog from 'npmlog'
 import { getRepository, LessThan, MoreThan } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
+import { removeCacheExpoToken } from '../util/cacheIdPush'
 import redisConfig from '../util/redisConfig'
 
-const OUTDATED_DAYS = 30
-const OUTDATED_ERRORS = 50
+export const OUTDATED_DAYS = 30
+export const OUTDATED_ERRORS = 10
 
 const cleanupQueue = new Queue<undefined>('Cleanup queue', {
   redis: redisConfig
@@ -46,6 +47,9 @@ const cleanup = () => {
         `found ${foundETsCount} outdated connections, removing them`
       )
       await repoET.remove(foundETs)
+      for (const ET of foundETs) {
+        await removeCacheExpoToken(ET.expoToken)
+      }
       npmlog.info('schedule', 'outdated connections removed')
     } else {
       npmlog.info('schedule', 'none outdated connections')

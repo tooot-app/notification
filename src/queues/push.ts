@@ -6,6 +6,7 @@ import updateErrorCount from '../controller/updateErrorCount'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
 import redisConfig from '../util/redisConfig'
+import { OUTDATED_ERRORS } from './cleanup'
 
 export type PushJob = {
   context: {
@@ -61,6 +62,9 @@ const processJobs = async (jobsData: PushJob[]) => {
   // Create the messages that you want to send to clients
   let messages = []
   for (let job of jobsData) {
+    if (job.context.errorCounts > OUTDATED_ERRORS) {
+      continue
+    }
     if (job.message) {
       messages.push({
         to: `ExponentPushToken[${job.context.expoToken}]`,
@@ -97,11 +101,8 @@ const processJobs = async (jobsData: PushJob[]) => {
   try {
     const tickets = await expo.sendPushNotificationsAsync(chunk)
     tickets.forEach((ticket, index) => {
-      if (
-        ticket.status === 'error' &&
-        ticket.details?.error === 'DeviceNotRegistered'
-      ) {
-        {
+      if (ticket.status === 'error') {
+        if (ticket.details?.error === 'DeviceNotRegistered') {
           npmlog.warn('processJobs', 'add error count')
           clearCache('add', jobsData[index].context)
         }
