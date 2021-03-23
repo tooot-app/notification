@@ -15,9 +15,9 @@ import enableSentry from './util/sentry'
 
 export const VERSION = 'v1'
 const DOMAIN =
-  process.env.NODE_ENV === 'development'
-    ? 'testpush.tooot.app'
-    : 'push.tooot.app'
+  process.env.NODE_ENV === 'production'
+    ? 'push.tooot.app'
+    : 'testpush.tooot.app'
 export const URL = `https://${DOMAIN}/${VERSION}`
 export const PUSH_PATH = 'push3'
 
