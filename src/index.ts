@@ -11,7 +11,6 @@ import { decode } from './queues/decode'
 import { push } from './queues/push'
 import appRoutes from './routes'
 import redisConfig from './util/redisConfig'
-import enableSentry from './util/sentry'
 
 export const VERSION = 'v1'
 const DOMAIN =
@@ -23,9 +22,6 @@ export const PUSH_PATH = 'push3'
 
 if (!process.env.EXPO_ACCESS_TOKEN_PUSH) {
   throw new Error('Missing Expo access token')
-}
-if (!process.env.SENTRY_DSN) {
-  throw new Error('Missing Sentry DSN')
 }
 
 const main = async () => {
@@ -61,7 +57,6 @@ const main = async () => {
 
   // Koa connections
   const app = new Koa()
-  enableSentry(app)
   process.env.DEBUG === 'true' && app.use(logger())
   app.use(
     bodyParser({

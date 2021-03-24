@@ -24,7 +24,7 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
   }
 
   const repoSA = getRepository(ServerAndAccount)
-  const [foundSAs, foundSAsCount] = await repoSA.findAndCount({
+  const foundSA = await repoSA.findOne({
     where: {
       expoToken: { expoToken },
       instanceUrl,
@@ -36,19 +36,18 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
     }
   })
 
-  // https://github.com/typeorm/typeorm/issues/4277
-  if (foundSAs[0].instanceUrl === instanceUrl) {
+  if (foundSA) {
     ctx.state.expoToken = expoToken
-    ctx.state.errorCounts = foundSAs[0].expoToken.errorCounts
+    ctx.state.errorCounts = foundSA.expoToken.errorCounts
     ctx.state.instanceUrl = instanceUrl
     ctx.state.accountId = accountId
-    ctx.state.serverKey = foundSAs[0].serverKey
-    ctx.state.keys = foundSAs[0].keys
-    ctx.state.accountFull = foundSAs[0].accountFull
+    ctx.state.serverKey = foundSA.serverKey
+    ctx.state.keys = foundSA.keys
+    ctx.state.accountFull = foundSA.accountFull
   } else {
     await removeCachePush({ expoToken, instanceUrl, accountId })
     npmlog.warn('checkTokens', 'expoToken does not match or not found')
-    ctx.throw(400, 'checkTokens: expoToken does not match or not found')
+    ctx.throw(500, 'checkTokens: expoToken does not match or not found')
   }
 
   await next()

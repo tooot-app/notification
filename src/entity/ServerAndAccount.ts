@@ -8,7 +8,7 @@ import {
 import { ExpoToken } from './ExpoToken'
 
 @Entity()
-@Index(['expoToken', 'serverKey', 'instanceUrl', 'accountId'], { unique: true })
+@Index(['expoToken', 'instanceUrl', 'accountId'], { unique: true })
 export class ServerAndAccount {
   @PrimaryGeneratedColumn()
   id!: number

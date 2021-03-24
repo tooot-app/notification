@@ -1,5 +1,4 @@
 import Koa from 'koa'
-import npmlog from 'npmlog'
 import { getRepository } from 'typeorm'
 import { ExpoToken } from '../entity/ExpoToken'
 import { ServerAndAccount } from '../entity/ServerAndAccount'
@@ -13,25 +12,14 @@ const updateDecode = async (ctx: Koa.Context, next: Koa.Next) => {
   const accountId: ServerAndAccount['accountId'] = ctx.state.accountId
 
   const repoSA = getRepository(ServerAndAccount)
-  const [foundSAs, foundSAsCount] = await repoSA.findAndCount({
+  const foundSA = await repoSA.findOneOrFail({
     expoToken: ctx.state.expoTokenInstance,
     instanceUrl,
     accountId
   })
 
-  if (foundSAsCount === 0) {
-    npmlog.warn('updateDecode', `not found matching existing item`)
-    ctx.throw(500, 'updateDecode: not found matching existing item')
-  } else if (foundSAsCount === 1) {
-    if (!keys) {
-      await removeCachePush({ expoToken, instanceUrl, accountId })
-    }
-    repoSA.update(foundSAs[0], { ...foundSAs[0], keys })
-  } else {
-    npmlog.warn('updateDecode', `found too much same, removing them all`)
-    await repoSA.remove(foundSAs)
-    ctx.throw(500, 'updateDecode: found too much same, removing them all')
-  }
+  await removeCachePush({ expoToken, instanceUrl, accountId })
+  repoSA.update(foundSA, { ...foundSA, keys })
 
   await next()
 }

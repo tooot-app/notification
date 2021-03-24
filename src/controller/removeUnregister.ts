@@ -11,21 +11,18 @@ const removeUnregister = async (ctx: Koa.Context, next: Koa.Next) => {
   const accountId: ServerAndAccount['accountId'] = ctx.state.accountId
 
   const repoSA = getRepository(ServerAndAccount)
-  const [foundSAs, foundSAsCount] = await repoSA.findAndCount({
+  const foundSA = await repoSA.findOne({
     expoToken: { expoToken },
     instanceUrl,
     accountId
   })
 
-  if (foundSAsCount === 0) {
-    npmlog.warn('removeUnregister', `not found matching existing item`)
-  } else if (foundSAsCount === 1) {
+  if (foundSA) {
     await removeCachePush({ expoToken, instanceUrl, accountId })
-    await repoSA.remove(foundSAs[0])
+    await repoSA.remove(foundSA)
   } else {
-    npmlog.warn('removeUnregister', `found too much same, removing them all`)
+    npmlog.warn('removeUnregister', `not found any`)
     await removeCachePush({ expoToken, instanceUrl, accountId })
-    await repoSA.remove(foundSAs)
   }
 
   await next()
