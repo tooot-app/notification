@@ -47,7 +47,7 @@ const checkTokens = async (ctx: Koa.Context, next: Koa.Next) => {
   } else {
     await removeCachePush({ expoToken, instanceUrl, accountId })
     npmlog.warn('checkTokens', 'expoToken does not match or not found')
-    ctx.throw(500, 'checkTokens: expoToken does not match or not found')
+    ctx.throw(404, 'checkTokens: expoToken does not match or not found')
   }
 
   await next()

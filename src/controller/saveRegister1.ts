@@ -17,7 +17,18 @@ const saveRegister1 = async (ctx: Koa.Context, next: Koa.Next) => {
   })
 
   const repoSA = getRepository(ServerAndAccount)
+  const foundSA = await repoSA.findOne({
+    where: {
+      expoToken,
+      instanceUrl,
+      accountId
+    }
+  })
 
+  // https://github.com/typeorm/typeorm/issues/4477#issuecomment-579142518
+  if (foundSA) {
+    await repoSA.remove(foundSA)
+  }
   await repoSA.save({
     keys: ctx.state.keys,
     instanceUrl,
